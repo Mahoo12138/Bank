@@ -6,7 +6,7 @@ using namespace std;
 int main()
 {
 	Bank admin;
-    admin.MainPage(admin.user); 
+    admin.MainPage(); 
 	
 	return 0;
 }

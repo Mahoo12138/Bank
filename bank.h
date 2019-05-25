@@ -1,4 +1,4 @@
-#include <iostream>
+ #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <Windows.h>
@@ -51,6 +51,23 @@ void GotoPosXY(int y, int x) {
 	*/
 }
 
+//检测输入合法
+int CheckInput(string str) {
+	regex pn("^1(3\\d|47|5([0-3]|[5-9])|8(0|2|[5-9]))\\d{8}$");		//定义十一位合法手机号正则表达式规则
+	regex pw("\\d{6}$");											//定义六位合法格式密码正则表达式规则
+	if (str.length() <= 6) {
+		return regex_match(str, pw);
+	}
+	else {
+		return regex_match(str, pn);
+	}
+
+}
+int CheckMoney(string mon) {
+	regex pw("^\\d{1,}$");
+	return regex_match(mon, pw);
+}
+
 //用户类，处理数据
 class User {
 private:
@@ -93,13 +110,6 @@ public:
 	string Getpassword() {
 		return password;
 	}
-
-	void Transfer() {
-
-	}
-	void Deposit() {
-
-	}
 };
 
 //主类
@@ -109,10 +119,10 @@ private:
 	string password = "admin";
 	
 public:
-	User user;
+	User Yuser,Wuser;
 
 	//注册方法
-	void SignUp(User user) {
+	void SignUp() {
 		string name;
 		string phonenum;
 		int money;
@@ -123,8 +133,8 @@ public:
 		ofstream fout("SignUp.txt", ios::app);
 
 		
-		user.Setaccount();
-		fout << user.Getaccount();
+		Yuser.Setaccount();
+		fout << Yuser.Getaccount();
 		fout << ":\n";
 
 		GotoPosXY(9, 32);
@@ -143,12 +153,9 @@ public:
 		GotoPosXY(11, 50);
 		cin >> phonenum;
 
-		regex pn("^1(3\\d|47|5([0-3]|[5-9])|8(0|2|[5-9]))\\d{8}$");		//定义十一位合法手机号正则表达式规则
-		regex pw("\\d{6}$");											//定义六位合法格式密码正则表达式规则
-
 		while (1) {
 			
-			if (!regex_match(phonenum, pn)) {
+			if (!CheckInput(phonenum)){
 				GotoPosXY(19, 16);
 				cout << "请输入正确手机号！";
 				Sleep(1800);
@@ -163,7 +170,7 @@ public:
 				break;
 		}
 		fout << phonenum + '\n';
-		user.Setname(phonenum);
+		Yuser.Setname(phonenum);
 
 		GotoPosXY(9, 40);
 		cout << "             ";
@@ -190,7 +197,7 @@ public:
 		GotoPosXY(11, 50);
 		cin >> name;
 		
-		user.Setname(name);
+		Yuser.Setname(name);
 
 		GotoPosXY(9, 40);
 		cout << "设置密码   ";
@@ -207,14 +214,14 @@ public:
 
 		while (1) {
 
-			if (!regex_match(password, pw)) {
+			if (!CheckInput(password)) {
 				GotoPosXY(19, 16);
 				cout << "请输入格式正确的密码！";
 				Sleep(1800);
 				GotoPosXY(19, 16);
 				cout << "                         ";
 				GotoPosXY(11, 54);
-				cout << "            ";
+				cout << "        ";
 				GotoPosXY(11, 54);
 				cin >> password;
 			}
@@ -222,7 +229,7 @@ public:
 				break;
 		}
 
-		user.Setpassword(password);
+		Yuser.Setpassword(password);
 		fout << password;
 		fout << "\n";
 
@@ -252,7 +259,7 @@ public:
 				continue;
 			}
 			else {
-				user.Setmoney(money);
+				Yuser.Setmoney(money);
 				fout << money ;
 				fout << "\n";
 			}
@@ -263,7 +270,7 @@ public:
 	}
 
 	//登录方法
-	void LogIn(User user) {
+	void LogIn() {
 		string name,phonenum,tempStr,password;
 		char tempstr[256],key;
 		int money;
@@ -277,7 +284,7 @@ public:
 			Sleep(1500);
 			GotoPosXY(19, 16);
 			cout << "                         ";
-			SignUp(user);
+			SignUp();
 			GotoPosXY(19, 16);
 			cout << "您已成功注册，正在载入登录界面！";
 			Sleep(800);
@@ -291,7 +298,7 @@ public:
 				Sleep(1500);
 				GotoPosXY(19, 16);
 				cout << "                         ";
-				SignUp(user);
+				SignUp();
 				GotoPosXY(19, 16);
 				cout << "您已成功注册，正在载入登录界面！";
 				Sleep(800);
@@ -314,11 +321,9 @@ public:
 		GotoPosXY(11, 50);
 		cin >> phonenum;
 
-		regex p("^1(3\\d|47|5([0-3]|[5-9])|8(0|2|[5-9]))\\d{8}$");	//定义正则表达式规则
-
 		while (1) {
 
-			if (!regex_match(phonenum, p)) {
+			if (!CheckInput(phonenum)) {
 				GotoPosXY(19, 16);
 				cout << "请输入正确手机号！";
 				Sleep(1800);
@@ -332,41 +337,39 @@ public:
 			else
 				break;
 		}
+
 		fstream file("SignUp.txt");
 		file.seekg(0, ios::beg);		//让文件指针回到开始位置，以免影响登录检索
-		while (!file.eof()) {
-			cout << "开始检索";
+		while (!file.eof()) {			//检索文件，读取数据
 			file.getline(tempstr,256,'\n');
-			cout << tempstr;
 			tempStr = string(tempstr);
 			if (phonenum == tempStr) {
-				cout << "找到了";
-				user.Setnum(phonenum);
-				file.seekg(-28, ios::cur);	//让文件指针从当前位置向文件开始方向移动个字节 
+				Yuser.Setnum(phonenum);			//读取手机号
+				file.seekg(-28, ios::cur);	    //让文件指针从当前位置向文件开始方向移动个字节 
 				file.getline(tempstr, 256, '\n');
 				tempStr = string(tempstr);
 				int index = tempStr.find(":");
 				string account = tempStr.substr(0, index);
-				user.Setaccount(account);
+				Yuser.Setaccount(account);		//读取账户
 				file.seekg(13, ios::cur);
 				file.getline(tempstr, 256, '\n');
 
 				tempStr = string(tempstr);
 		
-				user.Setpassword(tempStr);
+				Yuser.Setpassword(tempStr);		//读取密码
 
 				file.getline(tempstr, 256, '\n');
 				tempStr = string(tempstr);
 				money = atoi(tempStr.c_str());
-				user.Setmoney(money);
+				Yuser.Setmoney(money);		   //读取金额
 
 				file.getline(tempstr, 256, '\n');
 				tempStr = string(tempstr);
-				user.Setname(tempStr);
+				Yuser.Setname(tempStr);		   //读取姓名
 				break;
 			}
 			 
-		}
+		}   //  
 		file.close();
 		GotoPosXY(9, 40);
 		cout << "输入密码   ";
@@ -379,7 +382,7 @@ public:
 		GotoPosXY(12, 45);
 		cout << "         ┕━━━━━━━━┙";
 		
-		tempStr = user.Getpassword();
+		tempStr = Yuser.Getpassword();
 		while (1) {
 			GotoPosXY(11, 56);
 			cin >> password;
@@ -403,10 +406,9 @@ public:
 	}
 
 	//主界面实现
-	void MainPage(User user) {
+	void MainPage() {
 		char x;
 		system("cls");
-		cout << "123456789012345678901234567890123456789012345678901234567890" << endl;
 		cout << "\n\n\n\t\t※※※※※※※※※※※※※※※※※※※※※※※※※※※\n"
 			<< "\t\t※                                                  ※\n"
 			<< "\t\t※             欢迎使用老黄银行管理系统             ※\n"
@@ -424,10 +426,10 @@ public:
 		cout << "\n\t\t请选择操作方式： ";
 		cin >> x;
         if (x == '1') {
-			SignUp(user);
+			SignUp();
 		}
 		else if (x == '2') {
-			LogIn(user);
+			LogIn();
 		}
 		else {
 			exit(0);
@@ -435,25 +437,101 @@ public:
 
 	}
 
-	//用户界面实现
+	//用户操作界面实现
 	void UserPage() {
 		char x;
 		GotoPosXY(8, 31);
-		cout << "请根据需要输入序号：";
-		GotoPosXY(10, 32);
+		cout << "业务列表：";
+		GotoPosXY(10, 28);
 		cout << "1>  存款";
-		GotoPosXY(10, 44);
+		GotoPosXY(10, 40);
 		cout << "2>  取款";
-		GotoPosXY(12, 32);
+		GotoPosXY(10, 52);
 		cout << "3>  转账";
-		GotoPosXY(12, 44);
-		cout << "4>  退出";
+		GotoPosXY(12, 28);
+		cout << "4>  余额";
+		GotoPosXY(12, 40);
+		cout << "5>  查询";
+		GotoPosXY(12, 52);
+		cout << "6>  退出";
 		GotoPosXY(19, 16);
-		cout << "密码输入错误！请重新输入！";
+		cout << "请根据需求输入序号：";
 		GotoPosXY(19, 36);
 		cin >> x;
+		while (1) {
+			switch (x) {
+				case '2':Withdraw(); break;
+				case '4':
+					GotoPosXY(19, 16);cout << "                             ";
+					GotoPosXY(19, 16); cout << "您的余额为：" << Yuser.Getmoney(); break;
+				case '6':Exit(); break;
+
+			}
+			GotoPosXY(20, 16);
+			cout << "请根据需求输入您的下一步操作：        ";
+			GotoPosXY(20, 48);
+			cin >> x;
+		}
 		
 
+	}
+
+	//取款方法
+	void Withdraw() {
+		RefreshPage();
+		string mon;
+		GotoPosXY(9, 32);
+		cout << "存取金额最大仅支持十万！";
+		GotoPosXY(11, 32);
+		cout << "请输入取出金额：";
+		GotoPosXY(10, 39);
+		cout << "         ┍━━━━━━━━┑";
+		GotoPosXY(11, 48);
+		cout << "│        │  ";
+		GotoPosXY(12, 39);
+		cout << "         ┕━━━━━━━━┙";
+		GotoPosXY(11, 50);
+		cin >> mon;
+		while (1) {
+			if (!CheckMoney(mon)) {
+				GotoPosXY(19, 16);
+				cout << "请输入合理的金额！";
+				Sleep(1800);
+				GotoPosXY(19, 16);
+				cout << "                  ";
+				GotoPosXY(11, 50);
+				cout << "       ";
+				GotoPosXY(11, 50);
+				cin >> mon;
+			}
+			else
+				break;
+		}
+		int money = atoi(mon.c_str());
+		if ((Yuser.Getmoney() - money) < 0) {
+			GotoPosXY(19, 16);
+			cout << "余额不足！";
+			Sleep(300);
+			GotoPosXY(19, 16);
+			cout << "          ";
+		}
+		Yuser.Setmoney(Yuser.Getmoney() - money);
+		GotoPosXY(19, 16);
+		cout << "取款成功！";
+		Sleep(300);
+		GotoPosXY(19, 16);
+		cout << "          ";
+		RefreshPage();
+		UserPage();
+	}
+
+	//退出方法
+	void Exit() {
+		int line = GetDataLine(Yuser.Getphonenum());
+		cout << line;
+		ChangeLineData(line + 2, Yuser.Getpassword());
+		ChangeLineData(line + 3, to_string(Yuser.Getmoney()));
+		exit(0);
 	}
 
 	//刷新界面
@@ -473,5 +551,86 @@ public:
 			<< "\t\t※                                                  ※\n"
 			<< "\t\t※※※※※※※※※※※※※※※※※※※※※※※※※※※\n"
 			<< endl;
+	}
+		
+	//读取指定内容数据行数
+	int GetDataLine(string line) {
+		fstream file("SignUp.txt",ios::in);		//以只读方式打开文件
+		int n = 0;
+		string str;
+		while (1){
+			getline(file, str, '\n');
+			n++;
+			if (str == line);
+			break;
+		}
+		file.close();
+		return n;
+	}
+
+	//修改指定行数据
+	void ChangeLineData(int lineNum, string content) {
+		ifstream in;
+		char line[1024] = { '\0' };
+		in.open("SignUp.txt");
+		int i = 0;
+		string tempStr;
+		while (in.getline(line, sizeof(line))) {
+			i++;
+			if (lineNum != i) {
+				tempStr += string(line);
+			}
+			else {
+				tempStr += content;
+			}
+			tempStr += '\n';
+		}
+		in.close();
+		ofstream out;
+		out.open("SignUp.txt");
+		out.flush();
+		out << tempStr;
+		out.close();
+	}
+
+	//搜索用户，读取数据
+	void SearchUser() {
+		string name, phonenum, tempStr, password;
+		char tempstr[256], key;
+		int money;
+		string account;
+
+		fstream search("SignUp.txt");
+		while (!search.eof()) {					//检索文件，读取数据
+			search.getline(tempstr, 256, '\n');
+			tempStr = string(tempstr);
+			if (phonenum == tempStr) {
+				Wuser.Setnum(phonenum);			//读取手机号
+				search.seekg(-28, ios::cur);	    //让文件指针从当前位置向文件开始方向移动个字节 
+				search.getline(tempstr, 256, '\n');
+				tempStr = string(tempstr);
+				int index = tempStr.find(":");
+				string account = tempStr.substr(0, index);
+				Wuser.Setaccount(account);		//读取账户
+				search.seekg(13, ios::cur);
+				search.getline(tempstr, 256, '\n');
+
+				tempStr = string(tempstr);
+
+				Wuser.Setpassword(tempStr);		//读取密码
+
+				search.getline(tempstr, 256, '\n');
+				tempStr = string(tempstr);
+				money = atoi(tempStr.c_str());
+				Wuser.Setmoney(money);		   //读取金额
+
+				search.getline(tempstr, 256, '\n');
+				tempStr = string(tempstr);
+				Wuser.Setname(tempStr);		   //读取姓名
+				break;
+			}
+
+		}  
+		search.close();
 	}
 };
