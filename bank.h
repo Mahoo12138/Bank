@@ -1,4 +1,4 @@
- #include <iostream>
+ï»¿ #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <Windows.h>
@@ -7,12 +7,13 @@
 
 using namespace std;
 
-//»ñÈ¡ÏµÍ³Ê±¼ä£¬´´½¨ÕË»§Ãû
+int a = 1, b = 2, c = 3;		//CheckInput()å‡½æ•°è¾…åŠ©å˜é‡
+//è·å–ç³»ç»Ÿæ—¶é—´ï¼Œåˆ›å»ºè´¦æˆ·å
 string Time() {
-	//ÉùÃ÷±äÁ¿
+	//å£°æ˜å˜é‡
 	SYSTEMTIME sys_time;
 
-	//½«±äÁ¿ÖµÉèÖÃÎª±¾µØÊ±¼ä
+	//å°†å˜é‡å€¼è®¾ç½®ä¸ºæœ¬åœ°æ—¶é—´
 	GetLocalTime(&sys_time);
 	long long year = sys_time.wYear;
 	int month = sys_time.wMonth;
@@ -22,7 +23,7 @@ string Time() {
 	long long time = (year * 100000000) + (month * 1000000) + (day * 10000) + (hour * 100) + minute;
 	string t = to_string(time);
 	return t;
-	//Êä³öÊ±¼ä
+	//è¾“å‡ºæ—¶é—´
 	/*  sys_time.wYear,
 		sys_time.wMonth,
 		sys_time.wDay,
@@ -34,16 +35,16 @@ string Time() {
 	*/
 }
 
-//Ö¸¶¨Î»ÖÃÊä³ö
+//æŒ‡å®šä½ç½®è¾“å‡º
 void GotoPosXY(int y, int x) {
 	COORD pos;
 	pos.X = x;
 	pos.Y = y;
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE)	//ÉèÖÃ¿ØÖÆÌ¨¹â±êÊä³öµÄÎ»ÖÃ
-								/*»ñÈ¡±ê×¼Êä³öµÄ¾ä±ú*/, pos);
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE)	//è®¾ç½®æ§åˆ¶å°å…‰æ ‡è¾“å‡ºçš„ä½ç½®
+								/*è·å–æ ‡å‡†è¾“å‡ºçš„å¥æŸ„*/, pos);
 
 	/*
-	COORDÊÇWindows APIÖĞ¶¨ÒåµÄÒ»ÖÖ½á¹¹£¬±íÊ¾Ò»¸ö×Ö·ûÔÚ¿ØÖÆÌ¨ÆÁÄ»ÉÏµÄ×ø±ê¡£Æä¶¨ÒåÎª£º
+	COORDæ˜¯Windows APIä¸­å®šä¹‰çš„ä¸€ç§ç»“æ„ï¼Œè¡¨ç¤ºä¸€ä¸ªå­—ç¬¦åœ¨æ§åˆ¶å°å±å¹•ä¸Šçš„åæ ‡ã€‚å…¶å®šä¹‰ä¸ºï¼š
 		typedef struct _COORD {
 		SHORT X; // horizontal coordinate
 		SHORT Y; // vertical coordinate
@@ -51,24 +52,24 @@ void GotoPosXY(int y, int x) {
 	*/
 }
 
-//¼ì²âÊäÈëºÏ·¨
-int CheckInput(string str) {
-	regex pn("^1(3\\d|47|5([0-3]|[5-9])|8(0|2|[5-9]))\\d{8}$");		//¶¨ÒåÊ®Ò»Î»ºÏ·¨ÊÖ»úºÅÕıÔò±í´ïÊ½¹æÔò
-	regex pw("\\d{6}$");											//¶¨ÒåÁùÎ»ºÏ·¨¸ñÊ½ÃÜÂëÕıÔò±í´ïÊ½¹æÔò
-	if (str.length() <= 6) {
+//æ£€æµ‹è¾“å…¥åˆæ³•
+int CheckInput(int key,string str) {
+	regex pn("^1(3\\d|47|5([0-3]|[5-9])|8(0|2|[5-9]))\\d{8}$");		//å®šä¹‰åä¸€ä½åˆæ³•æ‰‹æœºå·æ­£åˆ™è¡¨è¾¾å¼è§„åˆ™
+	regex pw("\\d{6}$");											//å®šä¹‰å…­ä½åˆæ³•æ ¼å¼å¯†ç æ­£åˆ™è¡¨è¾¾å¼è§„åˆ™
+	regex mo("^\\d{1,}$");											//å®šä¹‰åˆæ³•é‡‘é¢æ­£åˆ™è¡¨è¾¾å¼è§„åˆ™
+	
+	if (key == 1) {
 		return regex_match(str, pw);
 	}
-	else {
+	else if (key == 2) {
 		return regex_match(str, pn);
 	}
-
-}
-int CheckMoney(string mon) {
-	regex pw("^\\d{1,}$");
-	return regex_match(mon, pw);
+	else{
+		return regex_match(str, mo);
+	}
 }
 
-//ÓÃ»§Àà£¬´¦ÀíÊı¾İ
+//ç”¨æˆ·ç±»ï¼Œå¤„ç†æ•°æ®
 class User {
 private:
 	string name;
@@ -110,18 +111,49 @@ public:
 	string Getpassword() {
 		return password;
 	}
+	void Resetting() {
+		name = "";
+		phonenum = "";
+		money = 0;
+		password = "";
+		account = "";
+	}
 };
 
-//Ö÷Àà
+//ä¸»ç±»
 class Bank {
+	//Â 
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â _oo8oo_
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  o8888888o
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  88" . "88
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  (| -_- |)
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  0\ Â = Â /0
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  ___/'==='\___
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  .' \\| Â  Â  |// '.
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â / \\||| Â : Â |||// \
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  / _||||| -:- |||||_ \
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â | Â  | \\\ Â - Â /// | Â  |
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â | \_| Â ''\---/'' Â |_/ |
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â \ Â .-\__ Â '-' Â __/-. Â /
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â ___'. .' Â /--.--\ Â '. .'___
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  ."" '< Â '.___\_<|>_/___.' Â >' "".
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â | | : Â `- \`.:`\ _ /`:.`/ -` Â : | |
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â \ Â \ `-. Â  \_ __\ /__ _/ Â  .-` / Â /
+// Â  Â  Â  Â  Â  Â  Â  Â =====`-.____`.___ \_____/ ___.`____.-`=====
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â `=---=`
+//Â 
+//Â 
+// Â  Â  Â  Â  Â  Â  Â  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//
+// Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â ä½›ç¥–ä¿ä½‘ Â  Â  Â  æ°¸æ— bug
 private:
-	string account = "admin";
-	string password = "admin";
+	string admin_account = "admin";
+	string admin_password = "admin";
 	
 public:
 	User Yuser,Wuser;
 
-	//×¢²á·½·¨
+	//æ³¨å†Œæ–¹æ³•
 	void SignUp() {
 		string name;
 		string phonenum;
@@ -135,36 +167,26 @@ public:
 		
 		Yuser.Setaccount();
 		fout << Yuser.Getaccount();
-		fout << ":\n";
+		fout << "\n";
 
-		GotoPosXY(9, 32);
-		cout << "×¢²áÖĞ£ºÉèÖÃÊÖ»úºÅÂë" ;
-		GotoPosXY(11, 32);
-		cout << "                                   ";
-		GotoPosXY(11, 32);
-		cout << "ÇëÊäÈëÊÖ»úºÅÂë£º";
-		GotoPosXY(10, 45);
-		cout << "   ©±©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©µ";
-		GotoPosXY(11, 48);
-		cout << "©¦             ©¦";
-		GotoPosXY(12, 45);
-		cout << "   ©¹©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©½";
+		GotoPosXY(9, 26);cout << "æ³¨å†Œä¸­ï¼šè®¾ç½®æ‰‹æœºå·ç " ;
+		GotoPosXY(11, 26);cout << "                              ";
+		GotoPosXY(11, 26);cout << "è¯·è¾“å…¥æ‰‹æœºå·ç ï¼š";
+		GotoPosXY(10, 39);cout << "   â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”‘";
+		GotoPosXY(11, 42);cout << "â”‚             â”‚";
+		GotoPosXY(12, 39);cout << "   â”•â”â”â”â”â”â”â”â”â”â”â”â”â”â”™";
 		
-		GotoPosXY(11, 50);
+		GotoPosXY(11, 44);
 		cin >> phonenum;
 
 		while (1) {
 			
-			if (!CheckInput(phonenum)){
-				GotoPosXY(19, 16);
-				cout << "ÇëÊäÈëÕıÈ·ÊÖ»úºÅ£¡";
+			if (!CheckInput(b,phonenum)){
+				GotoPosXY(19, 10);cout << "è¯·è¾“å…¥æ­£ç¡®æ‰‹æœºå·ï¼";
 				Sleep(1800);
-				GotoPosXY(19, 16);
-				cout << "                         ";
-				GotoPosXY(11, 50);
-				cout << "            ";
-				GotoPosXY(11, 50);
-				cin >> phonenum;
+				GotoPosXY(19, 10);cout << "                         ";
+				GotoPosXY(11, 44);cout << "            ";
+				GotoPosXY(11, 44);cin >> phonenum;
 			}
 			else 
 				break;
@@ -172,58 +194,38 @@ public:
 		fout << phonenum + '\n';
 		Yuser.Setname(phonenum);
 
-		GotoPosXY(9, 40);
-		cout << "             ";
-		GotoPosXY(9, 40);
-		cout << "ÉèÖÃĞÕÃû";
+		GotoPosXY(9, 34);cout << "             ";
+		GotoPosXY(9, 34);cout << "è®¾ç½®å§“å";
 
-		GotoPosXY(10, 45);
-		cout << "                    ";
-		GotoPosXY(11, 48);
-		cout << "                 ";
-		GotoPosXY(12, 45);
-		cout << "                    ";
+		GotoPosXY(10, 39);cout << "                    ";
+		GotoPosXY(11, 42);cout << "                 ";
+		GotoPosXY(12, 39);cout << "                    ";
 
-		GotoPosXY(11, 32);
-		cout << "ÇëÊäÈëÄúµÄĞÕÃû£º";
+		GotoPosXY(11, 26);cout << "è¯·è¾“å…¥æ‚¨çš„å§“åï¼š";
 		
-		GotoPosXY(10, 45);
-		cout << "   ©±©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©µ";
-		GotoPosXY(11, 48);
-		cout << "©¦           ©¦";
-		GotoPosXY(12, 45);
-		cout << "   ©¹©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©½";
+		GotoPosXY(10, 39);cout << "   â”â”â”â”â”â”â”â”â”â”â”â”â”‘";
+		GotoPosXY(11, 42);cout << "â”‚           â”‚";
+		GotoPosXY(12, 39);cout << "   â”•â”â”â”â”â”â”â”â”â”â”â”â”™";
 
-		GotoPosXY(11, 50);
-		cin >> name;
+		GotoPosXY(11, 44);cin >> name;
 		
 		Yuser.Setname(name);
 
-		GotoPosXY(9, 40);
-		cout << "ÉèÖÃÃÜÂë   ";
-		GotoPosXY(11, 32);
-		cout << "ÇëÉèÖÃÁùÎ»µÄÊı×ÖÃÜÂë£º";
-		GotoPosXY(10, 45);
-		cout << "         ©±©¥©¥©¥©¥©¥©¥©¥©¥©µ";
-		GotoPosXY(11, 54);
-		cout << "©¦        ©¦  ";
-		GotoPosXY(12, 45);
-		cout << "         ©¹©¥©¥©¥©¥©¥©¥©¥©¥©½";
-		GotoPosXY(11, 56);
-		cin >> password;
+		GotoPosXY(9, 34);cout << "è®¾ç½®å¯†ç    ";
+		GotoPosXY(11, 26);cout << "è¯·è®¾ç½®å…­ä½çš„æ•°å­—å¯†ç ï¼š";
+		GotoPosXY(10, 39);cout << "         â”â”â”â”â”â”â”â”â”â”‘";
+		GotoPosXY(11, 48);cout << "â”‚        â”‚  ";
+		GotoPosXY(12, 39);cout << "         â”•â”â”â”â”â”â”â”â”â”™";
+		GotoPosXY(11, 50);cin >> password;
 
 		while (1) {
 
-			if (!CheckInput(password)) {
-				GotoPosXY(19, 16);
-				cout << "ÇëÊäÈë¸ñÊ½ÕıÈ·µÄÃÜÂë£¡";
+			if (!CheckInput(a,password)) {
+				GotoPosXY(19, 10);cout << "è¯·è¾“å…¥æ ¼å¼æ­£ç¡®çš„å¯†ç ï¼";
 				Sleep(1800);
-				GotoPosXY(19, 16);
-				cout << "                         ";
-				GotoPosXY(11, 54);
-				cout << "        ";
-				GotoPosXY(11, 54);
-				cin >> password;
+				GotoPosXY(19, 10);cout << "                         ";
+				GotoPosXY(11, 48);cout << "        ";
+				GotoPosXY(11, 48);cin >> password;
 			}
 			else
 				break;
@@ -235,27 +237,17 @@ public:
 
 		
 		while (1) {
-			GotoPosXY(10, 45);
-			cout << "                      ";
-			GotoPosXY(11, 54);
-			cout << "            ";
-			GotoPosXY(12, 45);
-			cout << "                      ";
-			GotoPosXY(9, 40);
-			cout << "´æÈë½ğ¶î          ";
-			GotoPosXY(11, 32);
-			cout << "ÇëÊäÈë´æÈë½ğ¶î£º    ";
-			GotoPosXY(10, 39);
-			cout << "         ©±©¥©¥©¥©¥©¥©¥©¥©¥©µ";
-			GotoPosXY(11, 48);
-			cout << "©¦        ©¦  ";
-			GotoPosXY(12, 39);
-			cout << "         ©¹©¥©¥©¥©¥©¥©¥©¥©¥©½";
-			GotoPosXY(11, 50);
-			cin >> money;
+			GotoPosXY(10, 36);cout << "                   ";
+			GotoPosXY(11, 48);cout << "            ";
+			GotoPosXY(12, 36);cout << "                      ";
+			GotoPosXY(9, 34);cout << "å­˜å…¥é‡‘é¢          ";
+			GotoPosXY(11, 26);cout << "è¯·è¾“å…¥å­˜å…¥é‡‘é¢ï¼š    ";
+			GotoPosXY(10, 33);cout << "         â”â”â”â”â”â”â”â”â”â”‘        ";
+			GotoPosXY(11, 42);cout << "â”‚        â”‚  ";
+			GotoPosXY(12, 33);cout << "         â”•â”â”â”â”â”â”â”â”â”™";
+			GotoPosXY(11, 44);cin >> money;
 			if (money < 0) {
-				GotoPosXY(19, 16);
-				cout << "½ğ¶îÊäÈëÓĞÎó£¬ÇëÖØĞÂÊäÈë£¡";
+				GotoPosXY(19, 10);cout << "é‡‘é¢è¾“å…¥æœ‰è¯¯ï¼Œè¯·é‡æ–°è¾“å…¥ï¼";
 				continue;
 			}
 			else {
@@ -267,9 +259,11 @@ public:
 		}
 		fout << name + '\n';
 		fout.close();
+		RefreshPage();
+		UserPage();
 	}
 
-	//µÇÂ¼·½·¨
+	//ç™»å½•æ–¹æ³•
 	void LogIn() {
 		string name,phonenum,tempStr,password;
 		char tempstr[256],key;
@@ -279,53 +273,45 @@ public:
 		fstream check("SignUp.txt");
 		if (check.fail()) {
 			check.close();
-			GotoPosXY(19, 16);
-			cout << "µ±Ç°ÎŞ×¢²áÓÃ»§£¬Çë×¢²á£¡";
+			GotoPosXY(19, 12);cout << "å½“å‰æ— æ³¨å†Œç”¨æˆ·ï¼Œè¯·æ³¨å†Œï¼";
 			Sleep(1500);
-			GotoPosXY(19, 16);
-			cout << "                         ";
+			GotoPosXY(19, 12);cout << "                         ";
 			SignUp();
-			GotoPosXY(19, 16);
-			cout << "ÄúÒÑ³É¹¦×¢²á£¬ÕıÔÚÔØÈëµÇÂ¼½çÃæ£¡";
+			GotoPosXY(19, 12);cout << "æ‚¨å·²æˆåŠŸæ³¨å†Œï¼Œæ­£åœ¨è½½å…¥ç™»å½•ç•Œé¢ï¼";
 			Sleep(800);
 		}
 		else {
-			key = check.get();	//ÊÔÍ¼È¥¶ÁÒ»¸ö×Ö·û
+			key = check.get();	//è¯•å›¾å»è¯»ä¸€ä¸ªå­—ç¬¦
 
-			if (check.eof()) {	//Ò»¸ö×Ö·û¶¼Î´¶Áµ½£¬±íÊ¾ÎÄ¼şÎª¿Õ
+			if (check.eof()) {	//ä¸€ä¸ªå­—ç¬¦éƒ½æœªè¯»åˆ°ï¼Œè¡¨ç¤ºæ–‡ä»¶ä¸ºç©º
 				GotoPosXY(19, 16);
-				cout << "µ±Ç°ÎŞ×¢²áÓÃ»§£¬Çë×¢²á£¡";
+				cout << "å½“å‰æ— æ³¨å†Œç”¨æˆ·ï¼Œè¯·æ³¨å†Œï¼";
 				Sleep(1500);
 				GotoPosXY(19, 16);
 				cout << "                         ";
 				SignUp();
 				GotoPosXY(19, 16);
-				cout << "ÄúÒÑ³É¹¦×¢²á£¬ÕıÔÚÔØÈëµÇÂ¼½çÃæ£¡";
+				cout << "æ‚¨å·²æˆåŠŸæ³¨å†Œï¼Œæ­£åœ¨è½½å…¥ç™»å½•ç•Œé¢ï¼";
 				Sleep(800);
 			}
 		}
 		check.close();
 		RefreshPage();
-		GotoPosXY(9, 32);
-		cout << "µÇÂ¼ÖĞ£ºÊäÈëÊÖ»úºÅ";
+		GotoPosXY(9, 26);cout << "ç™»å½•ä¸­ï¼šè¾“å…¥æ‰‹æœºå·";
+		GotoPosXY(11, 26);cout << "è¯·è¾“å…¥æ‰‹æœºå·ç ï¼š";
+		GotoPosXY(10, 39);cout << "   â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”‘";
+		GotoPosXY(11, 42);cout << "â”‚             â”‚";
+		GotoPosXY(12, 39);cout << "   â”•â”â”â”â”â”â”â”â”â”â”â”â”â”â”™";
 
-		GotoPosXY(11, 32);
-		cout << "ÇëÊäÈëÊÖ»úºÅÂë£º";
-		GotoPosXY(10, 45);
-		cout << "   ©±©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©µ";
-		GotoPosXY(11, 48);
-		cout << "©¦             ©¦";
-		GotoPosXY(12, 45);
-		cout << "   ©¹©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©½";
-
-		GotoPosXY(11, 50);
+		GotoPosXY(11, 44);
 		cin >> phonenum;
-
+		if (phonenum == admin_account) {
+			AdminPage();
+		}
 		while (1) {
-
-			if (!CheckInput(phonenum)) {
+			if (!CheckInput(b,phonenum)) {
 				GotoPosXY(19, 16);
-				cout << "ÇëÊäÈëÕıÈ·ÊÖ»úºÅ£¡";
+				cout << "è¯·è¾“å…¥æ­£ç¡®æ‰‹æœºå·ï¼";
 				Sleep(1800);
 				GotoPosXY(19, 16);
 				cout << "                         ";
@@ -338,66 +324,58 @@ public:
 				break;
 		}
 
+		
+
 		fstream file("SignUp.txt");
-		file.seekg(0, ios::beg);		//ÈÃÎÄ¼şÖ¸Õë»Øµ½¿ªÊ¼Î»ÖÃ£¬ÒÔÃâÓ°ÏìµÇÂ¼¼ìË÷
-		while (!file.eof()) {			//¼ìË÷ÎÄ¼ş£¬¶ÁÈ¡Êı¾İ
+		file.seekg(0, ios::beg);		//è®©æ–‡ä»¶æŒ‡é’ˆå›åˆ°å¼€å§‹ä½ç½®ï¼Œä»¥å…å½±å“ç™»å½•æ£€ç´¢
+		while (!file.eof()) {			//æ£€ç´¢æ–‡ä»¶ï¼Œè¯»å–æ•°æ®
 			file.getline(tempstr,256,'\n');
 			tempStr = string(tempstr);
 			if (phonenum == tempStr) {
-				Yuser.Setnum(phonenum);			//¶ÁÈ¡ÊÖ»úºÅ
-				file.seekg(-28, ios::cur);	    //ÈÃÎÄ¼şÖ¸Õë´Óµ±Ç°Î»ÖÃÏòÎÄ¼ş¿ªÊ¼·½ÏòÒÆ¶¯¸ö×Ö½Ú 
+				Yuser.Setnum(phonenum);			//è¯»å–æ‰‹æœºå·
+				file.seekg(-27, ios::cur);	    //è®©æ–‡ä»¶æŒ‡é’ˆä»å½“å‰ä½ç½®å‘æ–‡ä»¶å¼€å§‹æ–¹å‘ç§»åŠ¨ä¸ªå­—èŠ‚ 
 				file.getline(tempstr, 256, '\n');
 				tempStr = string(tempstr);
-				int index = tempStr.find(":");
-				string account = tempStr.substr(0, index);
-				Yuser.Setaccount(account);		//¶ÁÈ¡ÕË»§
+				Yuser.Setaccount(tempStr);		//è¯»å–è´¦æˆ·
 				file.seekg(13, ios::cur);
 				file.getline(tempstr, 256, '\n');
 
 				tempStr = string(tempstr);
 		
-				Yuser.Setpassword(tempStr);		//¶ÁÈ¡ÃÜÂë
+				Yuser.Setpassword(tempStr);		//è¯»å–å¯†ç 
 
 				file.getline(tempstr, 256, '\n');
 				tempStr = string(tempstr);
 				money = atoi(tempStr.c_str());
-				Yuser.Setmoney(money);		   //¶ÁÈ¡½ğ¶î
+				Yuser.Setmoney(money);		   //è¯»å–é‡‘é¢
 
 				file.getline(tempstr, 256, '\n');
 				tempStr = string(tempstr);
-				Yuser.Setname(tempStr);		   //¶ÁÈ¡ĞÕÃû
+				Yuser.Setname(tempStr);		   //è¯»å–å§“å
 				break;
 			}
 			 
 		}   //  
 		file.close();
-		GotoPosXY(9, 40);
-		cout << "ÊäÈëÃÜÂë   ";
-		GotoPosXY(11, 32);
-		cout << "ÇëÊäÈëÁùÎ»µÄÊı×ÖÃÜÂë£º";
-		GotoPosXY(10, 45);
-		cout << "         ©±©¥©¥©¥©¥©¥©¥©¥©¥©µ";
-		GotoPosXY(11, 54);
-		cout << "©¦        ©¦  ";
-		GotoPosXY(12, 45);
-		cout << "         ©¹©¥©¥©¥©¥©¥©¥©¥©¥©½";
+		GotoPosXY(9, 34);cout << "è¾“å…¥å¯†ç    ";
+		GotoPosXY(11, 26);cout << "è¯·è¾“å…¥å…­ä½çš„æ•°å­—å¯†ç ï¼š";
+		GotoPosXY(10, 39);cout << "         â”â”â”â”â”â”â”â”â”â”‘";
+		GotoPosXY(11, 48);cout << "â”‚        â”‚  ";
+		GotoPosXY(12, 39);cout << "         â”•â”â”â”â”â”â”â”â”â”™";
 		
 		tempStr = Yuser.Getpassword();
 		while (1) {
-			GotoPosXY(11, 56);
+			GotoPosXY(11, 50);
 			cin >> password;
 			if (password == tempStr) {
-				GotoPosXY(19, 16);
-				cout << "µÇÂ¼³É¹¦£¡ÕıÔÚÌø×ª½çÃæ¡­¡­";
+				GotoPosXY(19, 12);cout << "ç™»å½•æˆåŠŸï¼æ­£åœ¨è·³è½¬ç•Œé¢â€¦â€¦";
 				Sleep(800);
 				break;
 			}
 			else {
-				GotoPosXY(19, 16);
-				cout << "ÃÜÂëÊäÈë´íÎó£¡ÇëÖØĞÂÊäÈë£¡";
+				GotoPosXY(19, 12);cout << "å¯†ç è¾“å…¥é”™è¯¯ï¼è¯·é‡æ–°è¾“å…¥ï¼";
 				Sleep(200);
-				GotoPosXY(11, 56);
-				cout << "      ";
+				GotoPosXY(11, 52);cout << "      ";
 				continue;
 			}
 		}
@@ -405,25 +383,25 @@ public:
 		UserPage();
 	}
 
-	//Ö÷½çÃæÊµÏÖ
+	//ä¸»ç•Œé¢å®ç°
 	void MainPage() {
 		char x;
 		system("cls");
-		cout << "\n\n\n\t\t¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù\n"
-			<< "\t\t¡ù                                                  ¡ù\n"
-			<< "\t\t¡ù             »¶Ó­Ê¹ÓÃÀÏ»ÆÒøĞĞ¹ÜÀíÏµÍ³             ¡ù\n"
-			<< "\t\t¡ù                                                  ¡ù\n"
-			<< "\t\t¡ù                                                  ¡ù\n"
-			<< "\t\t¡ù             ÇëÑ¡Ôñ£º                             ¡ù\n"
-			<< "\t\t¡ù                   1>   ×¢²á                      ¡ù\n"
-			<< "\t\t¡ù                   2>   µÇÂ¼                      ¡ù\n"
-			<< "\t\t¡ù             ¡¤>ÆäËûÈÎÒâ¼üÍË³öÏµÍ³<¡¤             ¡ù\n"
-			<< "\t\t¡ù                                                  ¡ù\n"
-			<< "\t\t¡ù    ¿Í·şµç»°£º15507462014£¬ÈçÓĞ½ô¼±Çé¿öÇë²¦110    ¡ù\n"
-			<< "\t\t¡ù                                                  ¡ù\n"
-			<< "\t\t¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù\n"
+		cout << "\n\n\n\n\tâ€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»\n"
+			<< "\tâ€»                                                  â€»\n"
+			<< "\tâ€»             æ¬¢è¿ä½¿ç”¨è€é»„é“¶è¡Œç®¡ç†ç³»ç»Ÿ             â€»\n"
+			<< "\tâ€»                                                  â€»\n"
+			<< "\tâ€»                                                  â€»\n"
+			<< "\tâ€»             è¯·é€‰æ‹©ï¼š                             â€»\n"
+			<< "\tâ€»                   1>   æ³¨å†Œ                      â€»\n"
+			<< "\tâ€»                   2>   ç™»å½•                      â€»\n"
+			<< "\tâ€»             Â·>å…¶ä»–ä»»æ„é”®é€€å‡ºç³»ç»Ÿ<Â·             â€»\n"
+			<< "\tâ€»                                                  â€»\n"
+			<< "\tâ€»    å®¢æœç”µè¯ï¼š15507462014ï¼Œå¦‚æœ‰ç´§æ€¥æƒ…å†µè¯·æ‹¨110    â€»\n"
+			<< "\tâ€»                                                  â€»\n"
+			<< "\tâ€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»\n"
 			<< endl;
-		cout << "\n\t\tÇëÑ¡Ôñ²Ù×÷·½Ê½£º ";
+		cout << "\n\tè¯·é€‰æ‹©æ“ä½œæ–¹å¼ï¼š ";
 		cin >> x;
         if (x == '1') {
 			SignUp();
@@ -437,71 +415,66 @@ public:
 
 	}
 
-	//ÓÃ»§²Ù×÷½çÃæÊµÏÖ
+	//ç”¨æˆ·æ“ä½œç•Œé¢å®ç°
 	void UserPage() {
 		char x;
-		GotoPosXY(8, 31);
-		cout << "ÒµÎñÁĞ±í£º";
-		GotoPosXY(10, 28);
-		cout << "1>  ´æ¿î";
-		GotoPosXY(10, 40);
-		cout << "2>  È¡¿î";
-		GotoPosXY(10, 52);
-		cout << "3>  ×ªÕË";
-		GotoPosXY(12, 28);
-		cout << "4>  Óà¶î";
-		GotoPosXY(12, 40);
-		cout << "5>  ²éÑ¯";
-		GotoPosXY(12, 52);
-		cout << "6>  ÍË³ö";
-		GotoPosXY(19, 16);
-		cout << "Çë¸ù¾İĞèÇóÊäÈëĞòºÅ£º";
-		GotoPosXY(19, 36);
-		cin >> x;
+		GotoPosXY(8, 25);cout << "ä¸šåŠ¡åˆ—è¡¨ï¼š";
+		GotoPosXY(10, 20);cout << "1>  å­˜æ¬¾";
+		GotoPosXY(10, 32);cout << "2>  å–æ¬¾";
+		GotoPosXY(10, 44);cout << "3>  è½¬è´¦";
+		GotoPosXY(12, 20);cout << "4>  ä½™é¢";
+		GotoPosXY(12, 32);cout << "5>  æŸ¥è¯¢";
+		GotoPosXY(12, 44);cout << "6>  é€€å‡º";
+		GotoPosXY(19, 10);cout << "è¯·æ ¹æ®éœ€æ±‚è¾“å…¥åºå·ï¼š";
+		GotoPosXY(19, 30);cin >> x;
 		while (1) {
 			switch (x) {
-				case '2':Withdraw(); break;
-				case '4':
-					GotoPosXY(19, 16);cout << "                             ";
-					GotoPosXY(19, 16); cout << "ÄúµÄÓà¶îÎª£º" << Yuser.Getmoney(); break;
-				case '6':Exit(); break;
+			case '1':Deposit();
+			case '2':Withdraw(); 
+				break;
+			case '4':
+					GotoPosXY(19, 10);cout << "                             ";
+					GotoPosXY(19, 10); cout << "æ‚¨çš„ä½™é¢ä¸ºï¼š" << Yuser.Getmoney(); 
+				break;
+			case '6':Exit(); MainPage(); 
+				break;
 
 			}
-			GotoPosXY(20, 16);
-			cout << "Çë¸ù¾İĞèÇóÊäÈëÄúµÄÏÂÒ»²½²Ù×÷£º        ";
-			GotoPosXY(20, 48);
+			GotoPosXY(20, 10);
+			cout << "è¯·æ ¹æ®éœ€æ±‚è¾“å…¥æ‚¨çš„ä¸‹ä¸€æ­¥æ“ä½œï¼š     ";
+			GotoPosXY(20, 42);
 			cin >> x;
 		}
 		
 
 	}
 
-	//È¡¿î·½·¨
+	//å–æ¬¾æ–¹æ³•
 	void Withdraw() {
 		RefreshPage();
 		string mon;
-		GotoPosXY(9, 32);
-		cout << "´æÈ¡½ğ¶î×î´ó½öÖ§³ÖÊ®Íò£¡";
-		GotoPosXY(11, 32);
-		cout << "ÇëÊäÈëÈ¡³ö½ğ¶î£º";
-		GotoPosXY(10, 39);
-		cout << "         ©±©¥©¥©¥©¥©¥©¥©¥©¥©µ";
-		GotoPosXY(11, 48);
-		cout << "©¦        ©¦  ";
-		GotoPosXY(12, 39);
-		cout << "         ©¹©¥©¥©¥©¥©¥©¥©¥©¥©½";
-		GotoPosXY(11, 50);
+		GotoPosXY(9, 26);
+		cout << "å­˜å–é‡‘é¢æœ€å¤§ä»…æ”¯æŒåä¸‡ï¼";
+		GotoPosXY(11, 26);
+		cout << "è¯·è¾“å…¥å–å‡ºé‡‘é¢ï¼š";
+		GotoPosXY(10, 33);
+		cout << "         â”â”â”â”â”â”â”â”â”â”‘";
+		GotoPosXY(11, 42);
+		cout << "â”‚        â”‚  ";
+		GotoPosXY(12, 33);
+		cout << "         â”•â”â”â”â”â”â”â”â”â”™";
+		GotoPosXY(11, 44);
 		cin >> mon;
 		while (1) {
-			if (!CheckMoney(mon)) {
+			if (!CheckInput (c,mon)) {
 				GotoPosXY(19, 16);
-				cout << "ÇëÊäÈëºÏÀíµÄ½ğ¶î£¡";
+				cout << "è¯·è¾“å…¥åˆç†çš„é‡‘é¢ï¼";
 				Sleep(1800);
 				GotoPosXY(19, 16);
 				cout << "                  ";
-				GotoPosXY(11, 50);
+				GotoPosXY(11, 44);
 				cout << "       ";
-				GotoPosXY(11, 50);
+				GotoPosXY(11, 44);
 				cin >> mon;
 			}
 			else
@@ -510,65 +483,208 @@ public:
 		int money = atoi(mon.c_str());
 		if ((Yuser.Getmoney() - money) < 0) {
 			GotoPosXY(19, 16);
-			cout << "Óà¶î²»×ã£¡";
-			Sleep(300);
+			cout << "ä½™é¢ä¸è¶³ï¼";
+			Sleep(500);
 			GotoPosXY(19, 16);
 			cout << "          ";
 		}
-		Yuser.Setmoney(Yuser.Getmoney() - money);
-		GotoPosXY(19, 16);
-		cout << "È¡¿î³É¹¦£¡";
-		Sleep(300);
-		GotoPosXY(19, 16);
-		cout << "          ";
+		else {
+			Yuser.Setmoney(Yuser.Getmoney() - money);
+			GotoPosXY(19, 16);
+			cout << "å–æ¬¾æˆåŠŸï¼";
+			Sleep(500);
+			GotoPosXY(19, 16);
+			cout << "          ";
+		}
+		KeepData();
 		RefreshPage();
 		UserPage();
 	}
 
-	//ÍË³ö·½·¨
-	void Exit() {
-		int line = GetDataLine(Yuser.Getphonenum());
-		cout << line;
-		ChangeLineData(line + 2, Yuser.Getpassword());
-		ChangeLineData(line + 3, to_string(Yuser.Getmoney()));
-		exit(0);
+	//å­˜æ¬¾æ–¹æ³•
+	void Deposit() {
+		RefreshPage();
+		string mon;
+		GotoPosXY(9, 26);cout << "å­˜å–é‡‘é¢æœ€å¤§ä»…æ”¯æŒåä¸‡ï¼";
+		GotoPosXY(11, 26);cout << "è¯·è¾“å…¥å­˜å…¥é‡‘é¢ï¼š";
+		GotoPosXY(10, 33);cout << "         â”â”â”â”â”â”â”â”â”â”‘";
+		GotoPosXY(11, 42);cout << "â”‚        â”‚  ";
+		GotoPosXY(12, 33);cout << "         â”•â”â”â”â”â”â”â”â”â”™";
+		GotoPosXY(11, 44);cin >> mon;
+		while (1) {
+			if (!CheckInput(3,mon)) {
+				GotoPosXY(19, 16);cout << "è¯·è¾“å…¥åˆç†çš„é‡‘é¢ï¼";
+				Sleep(1800);
+				GotoPosXY(19, 16);cout << "                  ";
+				GotoPosXY(11, 44);cout << "       ";
+				GotoPosXY(11, 44);cin >> mon;
+			}
+			else
+				break;
+		}
+		int money = atoi(mon.c_str());
+		Yuser.Setmoney(Yuser.Getmoney() + money);
+		GotoPosXY(19, 16);cout << "å­˜æ¬¾æˆåŠŸï¼";
+		Sleep(300);
+		GotoPosXY(19, 16);cout << "          ";
+		KeepData();
+		RefreshPage();
+		UserPage();
 	}
 
-	//Ë¢ĞÂ½çÃæ
+	//ä¿å­˜æ•°æ®æ–¹æ³•
+	void KeepData() {
+		int line = GetDataLine(Yuser.Getphonenum());
+		ChangeLineData(line + 1, Yuser.Getpassword());
+		ChangeLineData(line + 2, to_string(Yuser.Getmoney()));
+	}
+	
+	//é€€å‡ºè´¦æˆ·æ–¹æ³•
+	void Exit() {
+		Yuser.Resetting();
+		Wuser.Resetting();
+		GotoPosXY(19, 16);
+		cout << "è´¦æˆ·æ³¨é”€æˆåŠŸï¼æ­£åœ¨è·³è½¬ç•Œé¢â€¦â€¦";
+		Sleep(500);
+		MainPage();
+	}
+
+	//åˆ·æ–°ç•Œé¢æ–¹æ³•
 	void RefreshPage() {
         system("cls");
-		cout << "\n\n\n\n\t\t¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù\n"
-			<< "\t\t¡ù                                                  ¡ù\n"
-			<< "\t\t¡ù             »¶Ó­Ê¹ÓÃÀÏ»ÆÒøĞĞ¹ÜÀíÏµÍ³             ¡ù\n"
-			<< "\t\t¡ù                                                  ¡ù\n"
-			<< "\t\t¡ù                                                  ¡ù\n"
-			<< "\t\t¡ù                                                  ¡ù\n"
-			<< "\t\t¡ù                                                  ¡ù\n"
-			<< "\t\t¡ù                                                  ¡ù\n"
-			<< "\t\t¡ù                                                  ¡ù\n"
-			<< "\t\t¡ù                                                  ¡ù\n"
-			<< "\t\t¡ù    ¿Í·şµç»°£º15507462014£¬ÈçÓĞ½ô¼±Çé¿öÇë²¦110    ¡ù\n"
-			<< "\t\t¡ù                                                  ¡ù\n"
-			<< "\t\t¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù¡ù\n"
+		cout << "\n\n\n\n\tâ€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»\n"
+			<< "\tâ€»                                                  â€»\n"
+			<< "\tâ€»             æ¬¢è¿ä½¿ç”¨è€é»„é“¶è¡Œç®¡ç†ç³»ç»Ÿ             â€»\n"
+			<< "\tâ€»                                                  â€»\n"
+			<< "\tâ€»                                                  â€»\n"
+			<< "\tâ€»                                                  â€»\n"
+			<< "\tâ€»                                                  â€»\n"
+			<< "\tâ€»                                                  â€»\n"
+			<< "\tâ€»                                                  â€»\n"
+			<< "\tâ€»                                                  â€»\n"
+			<< "\tâ€»    å®¢æœç”µè¯ï¼š15507462014ï¼Œå¦‚æœ‰ç´§æ€¥æƒ…å†µè¯·æ‹¨110    â€»\n"
+			<< "\tâ€»                                                  â€»\n"
+			<< "\tâ€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»\n"
 			<< endl;
 	}
+
+	//ç®¡ç†å‘˜ç•Œé¢æ–¹æ³•
+	void AdminPage() {
+		char x;
+		string adminpw;
+		RefreshPage();
+		GotoPosXY(6, 23);cout << "è€é»„é“¶è¡Œåå°è´¦æˆ·ç®¡ç†ç³»ç»Ÿ";
+		GotoPosXY(14, 13);cout << "Copyright C 2019 è€é»„é“¶è¡Œ All Rights Reserved.";
+		GotoPosXY(9, 28);cout << "ç™»é™†ä¸­ï¼šè¾“å…¥å¯†ç    ";
+		GotoPosXY(11, 26);cout << "è¯·è¾“å…¥ç®¡ç†å‘˜å¯†ç ï¼š";
+		GotoPosXY(10, 39);cout << "     â”â”â”â”â”â”â”â”â”â”‘";
+		GotoPosXY(11, 44);cout << "â”‚        â”‚  ";
+		GotoPosXY(12, 39);cout << "     â”•â”â”â”â”â”â”â”â”â”™";
+		while (1) {
+			GotoPosXY(11, 46);cin >> adminpw;
+			if (adminpw == admin_password) {
+				GotoPosXY(19, 16);cout << "ç™»å½•æˆåŠŸï¼æ­£åœ¨è·³è½¬ç•Œé¢â€¦â€¦";
+				Sleep(800);
+				break;
+			}
+			else {
+				GotoPosXY(19, 16);cout << "å¯†ç è¾“å…¥é”™è¯¯ï¼è¯·é‡æ–°è¾“å…¥ï¼";
+				Sleep(200);
+				GotoPosXY(19, 16); cout << "                         ";
+				GotoPosXY(11, 46);cout << "      ";
+				continue;
+			}
+		}
+		GotoPosXY(19, 10); cout << "è¯·è¾“å…¥ä½ éœ€è¦çš„æ“ä½œï¼š                ";
+		GotoPosXY(8, 23);cout << "ç®¡ç†å‘˜æ“ä½œï¼š";
+		GotoPosXY(9, 24);cout << "                                  ";
+		GotoPosXY(10, 24);cout << "                                 ";
+		GotoPosXY(11,24);cout << "                                ";
+		GotoPosXY(12, 24);cout << "                                 ";
 		
-	//¶ÁÈ¡Ö¸¶¨ÄÚÈİÊı¾İĞĞÊı
+		GotoPosXY(10, 23);cout << "1>  ç”¨æˆ·åˆ—è¡¨	 2>  æ–°å¢ç”¨æˆ·";
+		GotoPosXY(12, 23);cout << "3>  åˆ é™¤ç”¨æˆ·	 4>  continue";
+		GotoPosXY(19, 30); cin >> x;
+		while (1) {
+			switch (x) {
+			case '1':UserList();
+				break;
+			case '2':Withdraw();
+				break;
+			case '4':
+				break;
+
+			}
+			GotoPosXY(20, 10);
+			cout << "è¯·æ ¹æ®éœ€æ±‚è¾“å…¥æ‚¨çš„ä¸‹ä¸€æ­¥æ“ä½œï¼š     ";
+			GotoPosXY(20, 34);
+			cin >> x;
+		}
+
+		system("pause");
+	}
+
+	//ç”¨æˆ·åˆ—è¡¨å®ç°
+	void UserList() {
+		GotoPosXY(4, 66); cout <<  "â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»";
+		GotoPosXY(5, 66); cout <<  "â€»                                              â€»";
+		GotoPosXY(6, 66); cout <<  "â€»               è€é»„é“¶è¡Œå·²æ³¨å†Œç”¨æˆ·             â€»";
+		GotoPosXY(7, 66); cout <<  "â€»                                              â€»";
+		GotoPosXY(8, 66); cout <<  "â€» å§“å   æ‰‹æœºå·       é‡‘é¢        æ³¨å†Œæ—¶é—´     â€»";
+		GotoPosXY(9, 66); cout <<  "â€»                                              â€»";
+		GotoPosXY(10, 66); cout << "â€»                                              â€»";
+		GotoPosXY(11, 66); cout << "â€»                                              â€»";
+		GotoPosXY(12, 66); cout << "â€»                                              â€»";
+		GotoPosXY(13, 66); cout << "â€»                                              â€»";
+		GotoPosXY(14, 66); cout << "â€»                                              â€»";
+		GotoPosXY(14, 66); cout << "â€»                                              â€»";
+		GotoPosXY(15, 66); cout << "â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»â€»";
+
+		int i = 0 ,Userlocation[256] = {0};
+		char tempstr[256];
+		string tempStr;
+		fstream show("SignUp.txt");
+
+		//è·å–æ¯ä¸ªç”¨æˆ·çš„æ•°æ®ä½ç½®
+		while (1) {
+			while (!show.eof()) {						//æ£€ç´¢æ–‡ä»¶ï¼Œè¯»å–æ•°æ®
+				show.getline(tempstr, 256, '\n');
+				tempStr = string(tempstr);
+				if (CheckInput(b,tempStr)) {
+					Userlocation[i] = GetDataLine(tempStr);
+					i++;
+				}
+			}
+			show.close();
+			break;
+		}
+
+		for (int j = 0, x = 9, y = 69; j < i; j++,x++) {
+			GotoPosXY(x, y); cout << ReadLineData(Userlocation[j] + 3);
+			GotoPosXY(x, y + 7); cout << ReadLineData(Userlocation[j]);
+			GotoPosXY(x, y + 20); cout << ReadLineData(Userlocation[j] + 2);
+			GotoPosXY(x, y + 32); cout <<  ReadLineData(Userlocation[j] -1);
+		}
+		
+		
+	}
+		
+	//è¯»å–æŒ‡å®šå†…å®¹æ•°æ®è¡Œæ•°
 	int GetDataLine(string line) {
-		fstream file("SignUp.txt",ios::in);		//ÒÔÖ»¶Á·½Ê½´ò¿ªÎÄ¼ş
+		fstream file("SignUp.txt",ios::in);		//ä»¥åªè¯»æ–¹å¼æ‰“å¼€æ–‡ä»¶
 		int n = 0;
 		string str;
 		while (1){
 			getline(file, str, '\n');
 			n++;
-			if (str == line);
+			if (str == line)
 			break;
 		}
 		file.close();
 		return n;
 	}
 
-	//ĞŞ¸ÄÖ¸¶¨ĞĞÊı¾İ
+	//ä¿®æ”¹æŒ‡å®šè¡Œæ•°æ®
 	void ChangeLineData(int lineNum, string content) {
 		ifstream in;
 		char line[1024] = { '\0' };
@@ -593,44 +709,59 @@ public:
 		out.close();
 	}
 
-	//ËÑË÷ÓÃ»§£¬¶ÁÈ¡Êı¾İ
-	void SearchUser() {
-		string name, phonenum, tempStr, password;
-		char tempstr[256], key;
+	//è¯»å–æŒ‡å®šè¡Œå†…å®¹
+	char* ReadLineData(int lineNum) {
+		char data[1024];
+		ifstream in;	
+		in.open("SignUp.txt"); 	
+		int line = 1;	
+		while (in.getline(data, 1024)) { 
+			if (lineNum == line) { 
+				break; 
+			}		
+			line++; 
+		} 	
+		in.close(); 
+		return data;
+	}
+
+	//è½¬è´¦ï¼šæœç´¢ç”¨æˆ·ï¼Œè¯»å–æ•°æ®
+	void SearchUser(string pn) {
+		string name, phonenum,tempStr, password, account;
+		char tempstr[256];
 		int money;
-		string account;
 
 		fstream search("SignUp.txt");
-		while (!search.eof()) {					//¼ìË÷ÎÄ¼ş£¬¶ÁÈ¡Êı¾İ
+		while (!search.eof()) {						//æ£€ç´¢æ–‡ä»¶ï¼Œè¯»å–æ•°æ®
 			search.getline(tempstr, 256, '\n');
 			tempStr = string(tempstr);
-			if (phonenum == tempStr) {
-				Wuser.Setnum(phonenum);			//¶ÁÈ¡ÊÖ»úºÅ
-				search.seekg(-28, ios::cur);	    //ÈÃÎÄ¼şÖ¸Õë´Óµ±Ç°Î»ÖÃÏòÎÄ¼ş¿ªÊ¼·½ÏòÒÆ¶¯¸ö×Ö½Ú 
+			if (tempStr == pn) {
+				Wuser.Setnum(tempStr);			    //è¯»å–æ‰‹æœºå·
+				search.seekg(-28, ios::cur);	    //è®©æ–‡ä»¶æŒ‡é’ˆä»å½“å‰ä½ç½®å‘æ–‡ä»¶å¼€å§‹æ–¹å‘ç§»åŠ¨ä¸ªå­—èŠ‚ 
 				search.getline(tempstr, 256, '\n');
 				tempStr = string(tempstr);
 				int index = tempStr.find(":");
-				string account = tempStr.substr(0, index);
-				Wuser.Setaccount(account);		//¶ÁÈ¡ÕË»§
+				account = tempStr.substr(0, index);
+				Wuser.Setaccount(account);			//è¯»å–è´¦æˆ·
 				search.seekg(13, ios::cur);
 				search.getline(tempstr, 256, '\n');
 
 				tempStr = string(tempstr);
 
-				Wuser.Setpassword(tempStr);		//¶ÁÈ¡ÃÜÂë
+				Wuser.Setpassword(tempStr);			//è¯»å–å¯†ç 
 
 				search.getline(tempstr, 256, '\n');
 				tempStr = string(tempstr);
 				money = atoi(tempStr.c_str());
-				Wuser.Setmoney(money);		   //¶ÁÈ¡½ğ¶î
+				Wuser.Setmoney(money);		   //è¯»å–é‡‘é¢
 
 				search.getline(tempstr, 256, '\n');
 				tempStr = string(tempstr);
-				Wuser.Setname(tempStr);		   //¶ÁÈ¡ĞÕÃû
+				Wuser.Setname(tempStr);		   //è¯»å–å§“å
 				break;
 			}
-
 		}  
-		search.close();
+		GotoPosXY(15, 66); cout << "";
+		//search.close();
 	}
 };
