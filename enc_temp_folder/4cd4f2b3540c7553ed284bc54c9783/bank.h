@@ -7,8 +7,7 @@
 
 using namespace std;
 
-int a = 1, b = 2, c = 3;		//CheckInput()函数辅助变量：'1'->密码，'2'->号码，'3'->金额
-
+int a = 1, b = 2, c = 3;		//CheckInput()函数辅助变量
 //获取系统时间，创建账户名
 string Time() {
 	//声明变量
@@ -657,6 +656,7 @@ Yuser.Setaccount();
 		GotoPosXY(10, 62); cout << "      ";
 		RefreshPage();
 		UserPage();
+		
 	}
 
 	//保存数据方法
