@@ -156,6 +156,10 @@
   <ItemGroup>
     <ClInclude Include="bank.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="bgm.wma" />
+    <None Include="_bgm.wma" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

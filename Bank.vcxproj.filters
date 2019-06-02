@@ -24,4 +24,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="bgm.wma">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="_bgm.wma">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
 </Project>
