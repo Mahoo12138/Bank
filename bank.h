@@ -7,22 +7,35 @@
 
 using namespace std;
 
-int a = 1, b = 2, c = 3;		//CheckInput()函数辅助变量：'1'->密码，'2'->号码，'3'->金额
+int a = 1, b = 2, c = 3, d = 4;		
+//CheckInput()函数辅助变量：'1'->密码，'2'->号码，'3'->金额，'4'->时间
+//SaveLog()存储账单辅助变量：'1'->存款，'2'->取款, '3'->转账，'4'->收账
+
+string Datapath = "SignUp.txt";		//指定数据路径
 
 //获取系统时间，创建账户名
 string Time() {
 	//声明变量
 	SYSTEMTIME sys_time;
-
+	int time_int[5];
+	string time_str[5];
 	//将变量值设置为本地时间
 	GetLocalTime(&sys_time);
-	long long year = sys_time.wYear;
-	int month = sys_time.wMonth;
-	int day = sys_time.wDay;
-	int hour = sys_time.wHour;
-	int minute = sys_time.wMinute;
-	long long time = (year * 100000000) + (month * 1000000) + (day * 10000) + (hour * 100) + minute;
-	string t = to_string(time);
+	time_int[0] = sys_time.wYear;
+	time_int[1] = sys_time.wMonth;
+	time_int[2] = sys_time.wDay;
+	time_int[3] = sys_time.wHour;
+	time_int[4] = sys_time.wMinute;
+	
+	for (int i = 0; i < 5; i++) {
+		if (time_int[i] < 10) {
+			time_str[i] = "0" + to_string(time_int[i]);
+		}
+		else {
+			time_str[i] = to_string(time_int[i]);
+		}
+	}
+	string t = time_str[0] + time_str[1] + time_str[2] + time_str[3] + time_str[4];
 	return t;
 	//输出时间
 	/*  sys_time.wYear,
@@ -57,22 +70,25 @@ void GotoPosXY(int y, int x) {
 int CheckInput(int key,string str) {
 	regex pn("^1(3\\d|47|5([0-3]|[5-9])|8(0|2|[5-9]))\\d{8}$");		//定义十一位合法手机号正则表达式规则
 	regex pw("\\d{6}$");											//定义六位合法格式密码正则表达式规则
-	regex mo("^\\d{1,}$");											//定义合法金额正则表达式规则
-	
+	regex mon("^\\d{1,}$");											//定义合法金额正则表达式规则
+	regex time("\\d{12}$");										//检测时间正则表达式规则
 	if (key == 1) {
 		return regex_match(str, pw);
 	}
 	else if (key == 2) {
 		return regex_match(str, pn);
 	}
-	else{
-		return regex_match(str, mo);
+	else if(key ==3){
+		return regex_match(str, mon);
+	}
+	else {
+		return regex_match(str, time);
 	}
 }
 
 //获得指定内容数据行数
-int GetDataLine(string line) {
-	fstream file("SignUp.txt", ios::in);		//以只读方式打开文件
+int GetDataLine(string line,string _file) {
+	fstream file(_file, ios::in);		//以只读方式打开文件
 	int n = 0;
 	string str;
 	while (!file.eof()) {
@@ -86,8 +102,8 @@ int GetDataLine(string line) {
 }
 
 //获取文件行数
-int GetLine() {
-	fstream file("SignUp.txt", ios::in);		//以只读方式打开文件
+int GetLine(string data) {
+	fstream file(data, ios::in);		//以只读方式打开文件
 	int n = 0;
 	string str;
 	while (!file.eof()) {
@@ -124,10 +140,10 @@ void ChangeLineData(int lineNum, string content) {
 }
 
 //读取指定行内容	
-string ReadLineData(int lineNum) {
+string ReadLineData(int lineNum,string path) {
 	string data;
 	ifstream in;
-	in.open("SignUp.txt");
+	in.open(path);
 	int line = 1;
 	while (getline(in,data)) {
 		if (lineNum == line) {
@@ -244,7 +260,7 @@ class Bank {
 private:
 	string admin_account = "admin";
 	string admin_password = "admin";
-	
+	//系统用户名和密码
 public:
 	User Yuser,Wuser;
 
@@ -286,7 +302,7 @@ public:
 			else 
 				break;
 		}
-		if (GetDataLine(phonenum) <= GetLine()) {
+		if (GetDataLine(phonenum, Datapath) < GetLine(Datapath)) {
 			GotoPosXY(19, 10); cout << "该用户已注册，请登录！";
 			Sleep(1800);
 			GotoPosXY(19, 10); cout << "                         ";
@@ -347,7 +363,7 @@ public:
 			GotoPosXY(11, 42);cout << "│        │  ";
 			GotoPosXY(12, 33);cout << "         ┕━━━━━━━━┙";
 			GotoPosXY(11, 44);cin >> money;
-			if (money < 0) {
+			if (!CheckInput(c,to_string(money))) {
 				GotoPosXY(19, 10);cout << "金额输入有误，请重新输入！";
 				continue;
 			}
@@ -367,8 +383,7 @@ public:
 	//登录方法
 	void LogIn() {
 		string name,phonenum,tempStr,password;
-		char tempstr[256],key;
-		int money;
+		char key;
 		string account;
 
 		fstream check("SignUp.txt");
@@ -385,13 +400,13 @@ public:
 			key = check.get();	//试图去读一个字符
 
 			if (check.eof()) {	//一个字符都未读到，表示文件为空
-				GotoPosXY(19, 16);
+				GotoPosXY(19, 10);
 				cout << "当前无注册用户，请注册！";
 				Sleep(1500);
-				GotoPosXY(19, 16);
+				GotoPosXY(19, 10);
 				cout << "                         ";
 				SignUp();
-				GotoPosXY(19, 16);
+				GotoPosXY(19, 10);
 				cout << "您已成功注册，正在载入登录界面！";
 				Sleep(800);
 			}
@@ -420,20 +435,12 @@ public:
 			else
 				break;
 		}
-		if (GetDataLine(phonenum) >= GetLine()) {
+		if (GetDataLine(phonenum, Datapath) >= GetLine(Datapath)) {
 			GotoPosXY(19, 16); cout << "该用户未注册！";
 			Sleep(1800);
 			LogIn();
 		}  
-		tempStr = ReadLineData(GetDataLine(phonenum) + 1);
-/*
-
-Yuser.Setaccount();
-		Yuser.Setmoney();
-		Yuser.Setname();
-		Yuser.Setnum()
-*/
-		
+		tempStr = ReadLineData(GetDataLine(phonenum, Datapath) + 1, Datapath);
 
 		GotoPosXY(9, 34);cout << "输入密码   ";
 		GotoPosXY(11, 26);cout << "请输入六位的数字密码：";
@@ -445,7 +452,7 @@ Yuser.Setaccount();
 			GotoPosXY(11, 50);cin >> password;
 			if (password == tempStr) {
 				GotoPosXY(19, 12);cout << "登录成功！正在跳转界面……";
-				Yuser.Setmoney(atoi(ReadLineData(GetDataLine(phonenum) + 2).c_str()));
+				Yuser.Setmoney(atoi(ReadLineData(GetDataLine(phonenum, Datapath) + 2,Datapath).c_str()));
 				Yuser.Setnum(phonenum);
 				Sleep(800);
 				break;
@@ -453,7 +460,7 @@ Yuser.Setaccount();
 			else {
 				GotoPosXY(19, 12);cout << "密码输入错误！请重新输入！";
 				Sleep(200);
-				GotoPosXY(11, 52);cout << "      ";
+				GotoPosXY(11, 50);cout << "      ";
 				continue;
 			}
 		}
@@ -517,6 +524,8 @@ Yuser.Setaccount();
 					GotoPosXY(19, 10);cout << "                             ";
 					GotoPosXY(19, 10); cout << "您的余额为：" << Yuser.Getmoney(); 
 				break;
+			case '5':LogPage(Yuser.Getphonenum());
+				break;
 			case '6':Exit(); 
 				break;
 			}
@@ -525,8 +534,6 @@ Yuser.Setaccount();
 			GotoPosXY(20, 42);
 			cin >> x;
 		}
-		
-
 	}
 
 	//取款方法
@@ -577,6 +584,7 @@ Yuser.Setaccount();
 			cout << "          ";
 		}
 		KeepData();
+		SaveLog(b, mon);
 		RefreshPage();
 		UserPage();
 	}
@@ -608,6 +616,7 @@ Yuser.Setaccount();
 		Sleep(300);
 		GotoPosXY(19, 16);cout << "          ";
 		KeepData();
+		SaveLog(a, mon);
 		RefreshPage();
 		UserPage();
 	}
@@ -626,7 +635,7 @@ Yuser.Setaccount();
 		GotoPosXY(11, 62); cout <<  "※※※※※※※※※※※※※※※※※※※※※※※※";
 		GotoPosXY(6, 88); cin >> phonenum;
 		while (1) {
-			if (!CheckInput(b, phonenum)|| GetDataLine(phonenum) >= GetLine()) {
+			if (!CheckInput(b, phonenum)|| GetDataLine(phonenum, Datapath) >= GetLine(Datapath)) {
 				GotoPosXY(12, 68);cout << "手机号格式错误或无此用户，请重试！";
 				Sleep(1500);GotoPosXY(12, 68);cout << "                                  ";
 				GotoPosXY(6, 88);cout << "            ";
@@ -635,6 +644,7 @@ Yuser.Setaccount();
 			else
 				break;
 		}
+		Wuser.Setnum(phonenum);
 		GotoPosXY(9, 88); cin >> tranmoney;
 		while (1) {
 			if (!CheckInput(c, to_string(tranmoney))) {
@@ -646,27 +656,56 @@ Yuser.Setaccount();
 			else
 				break;
 		}
+		SaveLog(d, to_string(tranmoney));
+		SaveLog(c, to_string(tranmoney));
 		Yuser.Setmoney(Yuser.Getmoney() - tranmoney);	//登录用户转账后余额设置
-		tranmoney = atoi(ReadLineData(GetDataLine(phonenum) + 2).c_str()) + tranmoney;	//被转账用户转账后余额设置
+		tranmoney = atoi(ReadLineData(GetDataLine(phonenum, Datapath) + 2,Datapath).c_str()) + tranmoney;	//被转账用户转账后余额设置
 		tranuser_money = to_string(tranmoney);	
 
-		ChangeLineData(GetDataLine(phonenum) + 2, tranuser_money);
-		ChangeLineData(GetDataLine(Yuser.Getphonenum()) + 2, to_string(Yuser.Getmoney()));
-		GotoPosXY(10, 62); cout << "转账成功！";
+		ChangeLineData(GetDataLine(phonenum, Datapath) + 2, tranuser_money);
+		ChangeLineData(GetDataLine(Yuser.Getphonenum(), Datapath) + 2, to_string(Yuser.Getmoney()));
+		GotoPosXY(13, 62); cout << "转账成功！";
 		Sleep(1500);
-		GotoPosXY(10, 62); cout << "      ";
+		GotoPosXY(13, 62); cout << "      ";
+		Wuser.Resetting();
 		RefreshPage();
 		UserPage();
 	}
 
+	//账单显示方法
+	void LogPage(string strnum) {
+		string logstr;
+		int i = GetLine("./Log/" + strnum + ".txt"),LogLocation[256] = { 0 }, lines, n = 0;
+		GotoPosXY(4, 62); cout << "※※※※※※※※※※※※※※※※※※※※※※※※";
+		GotoPosXY(5, 62); cout << "※                                            ※";
+		GotoPosXY(6, 62); cout << "※            您的所有账单详情如下            ※";
+		GotoPosXY(7, 62); cout << "※                                            ※";
+		GotoPosXY(8, 62); cout << "※  时间            业务类型     金额         ※";
+		for (int lines = 0; lines < (i/3)+1; lines++) {
+			GotoPosXY(9 + lines, 62); cout << "※                                            ※";
+		}
+		GotoPosXY(10 + (i/3), 62); cout << "※※※※※※※※※※※※※※※※※※※※※※※※";  
+		fstream log("./Log/" + strnum + ".txt");
+		while (!log.eof()) {
+			getline(log, logstr);
+			if (CheckInput(4, logstr)) {
+				lines = GetDataLine(logstr, "./Log/" + strnum + ".txt");
+				LogLocation[n] = lines;
+				n++;
+			}
+		}
+		for (int j = 0, x = 9, y = 66; j < i/3; j++, x++) {
+			GotoPosXY(x, y); cout << ReadLineData(LogLocation[j], "./Log/" + strnum + ".txt"); Sleep(200);	//输出时间
+			GotoPosXY(x, y + 17); cout << ReadLineData(LogLocation[j] + 1, "./Log/" + strnum + ".txt");Sleep(200);	//业务类型
+			GotoPosXY(x, y + 30); cout << ReadLineData(LogLocation[j] + 2, "./Log/" + strnum + ".txt"); Sleep(200);	//输出手机号
+			Sleep(200);
+		}
+	}
+
 	//保存数据方法
 	void KeepData() {
-		int line = GetDataLine(Yuser.Getphonenum());
-		cout << line;
-		ChangeLineData(line + 1, Yuser.Getpassword());
-		cout << to_string(Yuser.Getmoney());
+		int line = GetDataLine(Yuser.Getphonenum(),Datapath);
 		ChangeLineData(line + 2, to_string(Yuser.Getmoney()));
-
 	}
 	
 	//退出账户方法
@@ -713,7 +752,7 @@ Yuser.Setaccount();
 				show.getline(tempstr, 256, '\n');
 				tempStr = string(tempstr);
 				if (CheckInput(b, tempStr)) {
-					Userlocation[i] = GetDataLine(tempStr);
+					Userlocation[i] = GetDataLine(tempStr,Datapath);
 					i++;
 				}
 			}
@@ -770,11 +809,13 @@ Yuser.Setaccount();
 			GotoPosXY(19, 10);cout << "请根据需求输入您的下一步操作：     ";
 			GotoPosXY(19, 40);cin >> ad;
 		}
-		system("pause");
 	}
 
 	//用户列表实现
 	void UserList(int i,int* Userlocation) {		//'i'为系统已注册用户，Userlocation为存储每个用户手机号数据行号的数组
+		for (int n = 0; n < 4; n++) {
+			GotoPosXY(11 + i + n, 62); cout << "                                                    ";
+		}
 		GotoPosXY(4, 62); cout <<  "※※※※※※※※※※※※※※※※※※※※※※※※※※";
 		GotoPosXY(5, 62); cout <<  "※                                                ※";
 		GotoPosXY(6, 62); cout <<  "※               老黄银行已注册用户               ※";
@@ -785,13 +826,14 @@ Yuser.Setaccount();
 			GotoPosXY(10 + lines, 62); cout << "※                                                ※";
 		}
 		GotoPosXY(10 + i, 62); cout << "※※※※※※※※※※※※※※※※※※※※※※※※※※";
+		
 
 		for (int j = 0, x = 9, y = 69; j < i; j++,x++) {
 			GotoPosXY(x, y - 4); cout << j+1 <<">"; Sleep(200);	//输出序号
-			GotoPosXY(x, y); cout << ReadLineData(Userlocation[j] + 3); Sleep(200);	//输出姓名
-			GotoPosXY(x, y + 9); cout << ReadLineData(Userlocation[j]); Sleep(200);	//输出手机号
-			GotoPosXY(x, y + 21); cout << ReadLineData(Userlocation[j] + 2); Sleep(200);	//输出金额
-			GotoPosXY(x, y + 30); cout <<  ReadLineData(Userlocation[j] -1); Sleep(200);	//输出注册时间
+			GotoPosXY(x, y); cout << ReadLineData(Userlocation[j] + 3,Datapath); Sleep(200);	//输出姓名
+			GotoPosXY(x, y + 9); cout << ReadLineData(Userlocation[j], Datapath); Sleep(200);	//输出手机号
+			GotoPosXY(x, y + 21); cout << ReadLineData(Userlocation[j] + 2, Datapath); Sleep(200);	//输出金额
+			GotoPosXY(x, y + 30); cout <<  ReadLineData(Userlocation[j] -1, Datapath); Sleep(200);	//输出注册时间
 			Sleep(200);
 		}	
 	}
@@ -912,12 +954,35 @@ Yuser.Setaccount();
 			file.getline(tempstr, 256, '\n');
 			tempStr = string(tempstr);
 			if (pn == tempStr) {
-				GotoPosXY(23, 16); cout << GetDataLine(pn);
-				return GetDataLine(pn);
+				GotoPosXY(23, 16); cout << GetDataLine(pn,Datapath);
+				return GetDataLine(pn, Datapath);
 			}
 		}
 		GotoPosXY(19, 16); cout << "无此用户，请重新查询！";
 		Sleep(500);
 		GotoPosXY(19, 16); cout << "                      ";
+	}
+
+	//存储账单方法
+	void SaveLog(int n,string value) {
+		cout << Wuser.Getphonenum();
+		system("pause");
+		fstream log("./Log/" + Yuser.Getphonenum() + ".txt",ios::app);
+		if (n == 1) {
+			log << Time() + '\n' << "存款\n" << value + '\n';
+		}
+		if (n == 2) {
+			log << Time() + '\n' << "取款\n"<< value + '\n';
+		}
+		if (n == 3){
+			log << Time() + '\n' << "转账\n" << value + '\n';
+		}
+		if (n == 4){
+			cout << "yes";
+			fstream _log("./Log/" + Wuser.Getphonenum() + ".txt", ios::app);
+			_log << Time() + '\n' << "收账\n" << value + '\n';
+			_log.close();
+		}
+		log.close();
 	}
 };
